@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Admin Portal | Career Link</title>
+  <!-- Bootstrap 5 CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Bootstrap Icons -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+  <!-- Custom CSS -->
+  <link href="css/style.css" rel="stylesheet">
+</head>
+<body class="admin-page">
+
+  <div class="wrapper">
+    <!-- Dynamic Sidebar -->
+    <nav class="sidebar" id="sidebarNav"></nav>
+
+    <!-- Main Content Area -->
+    <div class="content">
+      <!-- Top Navbar -->
+      <div class="top-navbar">
+        <div class="d-flex align-items-center gap-3">
+          <button class="mobile-nav-toggle" id="mobileNavToggle"><i class="bi bi-list"></i></button>
+          <h5 class="m-0 fw-bold text-dark">Administrative Command Center</h5>
+        </div>
+        <div class="fw-semibold text-muted small">
+          <i class="bi bi-shield-check text-success me-1"></i><span class="display-user-name">Administrator</span>
+        </div>
+      </div>
+
+      <!-- Hero Banner -->
+      <div class="hero-banner">
+        <div class="hero-content">
+          <h2>Platform Command Center</h2>
+          <p>Monitor system health, manage registered users, and verify corporate job listings to ensure a secure recruitment ecosystem.</p>
+          <div class="mt-3">
+            <span class="badge bg-light text-dark me-2 p-2 px-3 rounded-pill shadow-sm">#AdminControl</span>
+            <span class="badge bg-warning text-dark p-2 px-3 rounded-pill shadow-sm">Secure Portal</span>
+          </div>
+        </div>
+        <img src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?q=80&w=600&auto=format&fit=crop" class="hero-image d-none d-lg-block" alt="Data Analytics">
+        <div class="hero-curve">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320">
+            <path fill="#ffc107" fill-opacity="1" d="M0,224L60,213.3C120,203,240,181,360,186.7C480,192,600,213,720,202.7C840,192,960,149,1080,138.7C1200,128,1320,149,1380,160L1440,171L1440,320L1380,320C1320,320,1200,320,1080,320C960,320,840,320,720,320C600,320,480,320,360,320C240,320,120,320,60,320L0,320Z"></path>
+          </svg>
+        </div>
+      </div>
+
+      <!-- System Overview Statistic Cards Row -->
+      <div class="row g-4 mb-4">
+        <!-- Total Users -->
+        <div class="col-md-6 col-lg-3">
+          <div class="stat-card">
+            <div class="stat-icon icon-blue"><i class="bi bi-people-fill"></i></div>
+            <div>
+              <div class="stat-number" id="statTotalUsers">0</div>
+              <div class="text-muted small fw-bold text-uppercase">Total Users</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Active Jobs -->
+        <div class="col-md-6 col-lg-3">
+          <div class="stat-card">
+            <div class="stat-icon icon-green"><i class="bi bi-briefcase-fill"></i></div>
+            <div>
+              <div class="stat-number" id="statActiveJobs">0</div>
+              <div class="text-muted small fw-bold text-uppercase">Active Jobs</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Applications -->
+        <div class="col-md-6 col-lg-3">
+          <div class="stat-card">
+            <div class="stat-icon icon-yellow"><i class="bi bi-file-earmark-text-fill"></i></div>
+            <div>
+              <div class="stat-number" id="statTotalApps">0</div>
+              <div class="text-muted small fw-bold text-uppercase">Applications</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Interviews -->
+        <div class="col-md-6 col-lg-3">
+          <div class="stat-card">
+            <div class="stat-icon icon-red"><i class="bi bi-calendar-event-fill"></i></div>
+            <div>
+              <div class="stat-number" id="statTotalInterviews">0</div>
+              <div class="text-muted small fw-bold text-uppercase">Interviews</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Admin Quick Navigation -->
+      <div class="row g-4">
+        <div class="col-md-4">
+          <div class="dashboard-card text-start p-4">
+            <div class="card-icon icon-blue ms-0 mb-3" style="width: 50px; height: 50px; font-size: 22px;"><i class="bi bi-person-lines-fill"></i></div>
+            <h5 class="fw-bold text-dark mb-1">Manage Platform Users</h5>
+            <p class="text-muted small mb-4">View candidate and employer accounts, inspect roles, and perform account cleanups.</p>
+            <a href="manage-users.html" class="btn btn-primary rounded-pill fw-bold px-4">Manage Users</a>
+          </div>
+        </div>
+
+        <div class="col-md-4">
+          <div class="dashboard-card text-start p-4">
+            <div class="card-icon icon-green ms-0 mb-3" style="width: 50px; height: 50px; font-size: 22px;"><i class="bi bi-patch-check-fill"></i></div>
+            <h5 class="fw-bold text-dark mb-1">Review & Approve Jobs</h5>
+            <p class="text-muted small mb-4">Verify incoming vacancies submitted by HR recruiters before publishing live.</p>
+            <a href="admin-approve-jobs.html" class="btn btn-success rounded-pill fw-bold px-4">Review Jobs</a>
+          </div>
+        </div>
+
+        <div class="col-md-4">
+          <div class="dashboard-card text-start p-4">
+            <div class="card-icon icon-yellow ms-0 mb-3" style="width: 50px; height: 50px; font-size: 22px;"><i class="bi bi-bar-chart-line-fill"></i></div>
+            <h5 class="fw-bold text-dark mb-1">Visual Reports & Exports</h5>
+            <p class="text-muted small mb-4">Explore interactive Chart.js analytics for demographic breakdowns and export PDF reports.</p>
+            <a href="admin-reports.html" class="btn btn-warning rounded-pill fw-bold text-dark px-4">View Reports</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="js/app-data.js"></script>
+  <script src="js/sidebar.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const user = CareerLinkDB.requireAuth('Admin');
+      if (!user) return;
+
+      const m = CareerLinkDB.getMetrics();
+      document.getElementById('statTotalUsers').textContent = m.totalUsers;
+      document.getElementById('statActiveJobs').textContent = m.activeJobs;
+      document.getElementById('statTotalApps').textContent = m.totalApplications;
+      document.getElementById('statTotalInterviews').textContent = m.totalInterviews;
+    });
+  </script>
+</body>
+</html>

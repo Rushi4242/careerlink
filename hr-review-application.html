@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Evaluate Candidate | HR Portal</title>
+  <!-- Bootstrap 5 CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Bootstrap Icons -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+  <!-- Custom CSS -->
+  <link href="css/style.css" rel="stylesheet">
+  <style>
+    .data-label {
+      color: #64748b;
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 2px;
+    }
+    .data-value {
+      font-size: 14.5px;
+      font-weight: 600;
+      color: #1e293b;
+      margin-bottom: 14px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="wrapper">
+    <!-- Dynamic Sidebar -->
+    <nav class="sidebar" id="sidebarNav"></nav>
+
+    <!-- Main Content Area -->
+    <div class="content">
+      <!-- Top Navbar -->
+      <div class="top-navbar">
+        <div class="d-flex align-items-center gap-3">
+          <button class="mobile-nav-toggle" id="mobileNavToggle"><i class="bi bi-list"></i></button>
+          <h5 class="m-0 fw-bold text-dark"><i class="bi bi-person-check-fill text-primary me-2"></i>Evaluate Candidate</h5>
+        </div>
+        <div class="fw-semibold text-muted small">
+          <i class="bi bi-person-circle me-1"></i><span class="display-user-name">HR Manager</span>
+        </div>
+      </div>
+
+      <!-- Evaluation Review Card -->
+      <div class="review-card" style="max-width: 750px;">
+        <div id="alertBox" style="display: none;" class="alert p-3 rounded-3 mb-3"></div>
+
+        <div id="candidateDetailsContainer">
+          <div class="text-center py-5">
+            <div class="spinner-border text-primary" role="status"></div>
+            <p class="mt-2 text-muted small">Loading candidate profile...</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Document View Modal -->
+  <div class="modal fade" id="resumeModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content rounded-4 border-0 shadow">
+        <div class="modal-header border-0 pb-0">
+          <h5 class="modal-title fw-bold"><i class="bi bi-file-earmark-pdf-fill text-danger me-2"></i>Resume Document</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body text-center p-4">
+          <div class="bg-light p-4 rounded-3 border mb-3">
+            <i class="bi bi-file-earmark-person-fill text-primary" style="font-size: 60px;"></i>
+            <h6 class="fw-bold mt-2 text-dark" id="modalFileName">Resume.pdf</h6>
+            <span class="badge bg-success rounded-pill px-3 py-1">Verified Document</span>
+          </div>
+          <p class="text-muted small">Candidate document is indexed and attached to this recruitment application.</p>
+          <button type="button" class="btn btn-primary rounded-pill px-4 fw-bold" onclick="alert('Document downloaded successfully.')">
+            <i class="bi bi-download me-2"></i>Download File
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="js/app-data.js"></script>
+  <script src="js/sidebar.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const user = CareerLinkDB.requireAuth('HR');
+      if (!user) return;
+
+      const urlParams = new URLSearchParams(window.location.search);
+      const appId = urlParams.get('appid');
+
+      if (!appId) {
+        window.location.href = 'hr-view-applications.html';
+        return;
+      }
+
+      const app = CareerLinkDB.getApplicationDetails(appId);
+      const container = document.getElementById('candidateDetailsContainer');
+
+      if (!app) {
+        container.innerHTML = `<div class="alert alert-danger text-center"><i class="bi bi-x-circle-fill me-2"></i>Application not found!</div>`;
+        return;
+      }
+
+      const resumeHtml = app.resume_file 
+        ? `<button type="button" class="btn btn-sm btn-primary rounded-pill px-3 fw-bold" onclick="openResumeModal('${app.resume_file}')"><i class="bi bi-file-earmark-pdf me-1"></i>View Document</button>`
+        : `<span class="badge bg-secondary">No document uploaded</span>`;
+
+      container.innerHTML = `
+        <div class="d-flex justify-content-between align-items-center mb-4 border-bottom pb-3">
+          <div>
+            <h4 class="fw-bold text-dark mb-1">${app.full_name}</h4>
+            <div class="text-primary fw-bold">Applied for: ${app.job_title}</div>
+          </div>
+          <span class="badge ${app.status === 'Shortlisted' ? 'bg-success' : (app.status === 'Rejected' ? 'bg-danger' : 'bg-warning text-dark')} px-3 py-2 rounded-pill">
+            Current Status: ${app.status}
+          </span>
+        </div>
+
+        <div class="row mb-3">
+          <div class="col-md-6">
+            <div class="data-label"><i class="bi bi-envelope me-1"></i>Email</div>
+            <div class="data-value">${app.email}</div>
+          </div>
+          <div class="col-md-6">
+            <div class="data-label"><i class="bi bi-phone me-1"></i>Mobile</div>
+            <div class="data-value">${app.mobile}</div>
+          </div>
+          <div class="col-md-6">
+            <div class="data-label"><i class="bi bi-mortarboard me-1"></i>Education</div>
+            <div class="data-value">${app.education}</div>
+          </div>
+          <div class="col-md-6">
+            <div class="data-label"><i class="bi bi-briefcase me-1"></i>Experience</div>
+            <div class="data-value">${app.experience}</div>
+          </div>
+          <div class="col-12">
+            <div class="data-label"><i class="bi bi-code-slash me-1"></i>Technical Skills</div>
+            <div class="data-value">${app.skills}</div>
+          </div>
+        </div>
+
+        <!-- Resume Preview Box -->
+        <div class="p-3 mb-4 rounded-3" style="background: #f8fafc; border: 1.5px dashed #cbd5e1;">
+          <div class="d-flex justify-content-between align-items-center">
+            <div>
+              <div class="fw-bold text-dark"><i class="bi bi-file-earmark-pdf-fill text-danger me-2"></i>Candidate Resume</div>
+              <small class="text-muted">${app.resume_file || "Not uploaded"}</small>
+            </div>
+            ${resumeHtml}
+          </div>
+        </div>
+
+        <!-- Evaluation Decision Form -->
+        <form id="evaluationForm">
+          <div class="mb-4">
+            <label class="form-label fw-bold text-dark">Evaluation Decision</label>
+            <select id="evalStatusSelect" class="form-select form-select-lg" required>
+              <option value="" disabled selected>-- Choose Action --</option>
+              <option value="Shortlisted">Shortlist Candidate & Schedule Interview</option>
+              <option value="Rejected">Reject Candidate</option>
+            </select>
+          </div>
+
+          <!-- Interview Scheduling Box (Shown dynamically) -->
+          <div id="interviewBox" style="display: none; background: #f8fafc; padding: 22px; border-radius: 12px; border: 1px solid #e2e8f0; margin-bottom: 25px;">
+            <h6 class="text-primary fw-bold mb-3"><i class="bi bi-calendar-plus me-2"></i>Interview Schedule Details</h6>
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <label class="form-label text-muted fw-bold small">Interview Date</label>
+                <input type="date" id="interviewDate" class="form-control">
+              </div>
+              <div class="col-md-6 mb-3">
+                <label class="form-label text-muted fw-bold small">Interview Time</label>
+                <input type="time" id="interviewTime" class="form-control">
+              </div>
+              <div class="col-12">
+                <label class="form-label text-muted fw-bold small">Interview Mode</label>
+                <select id="interviewMode" class="form-select">
+                  <option value="Online">Online (Video Call / Google Meet)</option>
+                  <option value="Offline">Offline (In-Office Discussion)</option>
+                  <option value="Phone Call">Phone Call Screening</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <button type="submit" class="btn btn-primary w-100 py-2 fw-bold rounded-pill mb-3">Submit Decision</button>
+          <a href="hr-view-applications.html" class="btn btn-light border w-100 py-2 rounded-pill text-dark fw-bold">Cancel</a>
+        </form>
+      `;
+
+      // Form event listeners
+      const statusSelect = document.getElementById('evalStatusSelect');
+      const interviewBox = document.getElementById('interviewBox');
+      const iDate = document.getElementById('interviewDate');
+      const iTime = document.getElementById('interviewTime');
+
+      // Pre-set default date/time
+      const nextWeek = new Date();
+      nextWeek.setDate(nextWeek.getDate() + 5);
+      iDate.value = nextWeek.toISOString().split('T')[0];
+      iTime.value = "11:00";
+
+      statusSelect.addEventListener('change', () => {
+        if (statusSelect.value === 'Shortlisted') {
+          interviewBox.style.display = 'block';
+          iDate.required = true;
+          iTime.required = true;
+        } else {
+          interviewBox.style.display = 'none';
+          iDate.required = false;
+          iTime.required = false;
+        }
+      });
+
+      document.getElementById('evaluationForm').addEventListener('submit', (e) => {
+        e.preventDefault();
+        const status = statusSelect.value;
+        const interview_date = iDate.value;
+        const interview_time = iTime.value;
+        const interview_mode = document.getElementById('interviewMode').value;
+
+        const res = CareerLinkDB.evaluateApplication(appId, {
+          status,
+          interview_date,
+          interview_time,
+          interview_mode
+        });
+
+        if (res.success) {
+          alert("Decision submitted successfully!");
+          window.location.href = "hr-view-applications.html";
+        }
+      });
+    });
+
+    function openResumeModal(fileName) {
+      document.getElementById('modalFileName').textContent = fileName;
+      new bootstrap.Modal(document.getElementById('resumeModal')).show();
+    }
+  </script>
+</body>
+</html>

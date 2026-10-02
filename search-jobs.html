@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Search Jobs | Candidate Portal</title>
+  <!-- Bootstrap 5 CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Bootstrap Icons -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+  <!-- Custom CSS -->
+  <link href="css/style.css" rel="stylesheet">
+  <style>
+    .search-card {
+      background: #ffffff;
+      padding: 20px 25px;
+      border-radius: 12px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+      margin-bottom: 30px;
+    }
+    .search-input {
+      background: #f8fafc;
+      border: 1px solid #cbd5e1;
+      padding: 13px 20px;
+      border-radius: 8px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="wrapper">
+    <!-- Dynamic Sidebar -->
+    <nav class="sidebar" id="sidebarNav"></nav>
+
+    <!-- Main Content Area -->
+    <div class="content">
+      <!-- Top Navbar -->
+      <div class="top-navbar">
+        <div class="d-flex align-items-center gap-3">
+          <button class="mobile-nav-toggle" id="mobileNavToggle"><i class="bi bi-list"></i></button>
+          <h5 class="m-0 fw-bold text-dark"><i class="bi bi-search text-primary me-2"></i>Search Open Opportunities</h5>
+        </div>
+        <div class="fw-semibold text-muted small">
+          <i class="bi bi-person-circle me-1"></i><span class="display-user-name">Candidate</span>
+        </div>
+      </div>
+
+      <!-- Search Bar Form -->
+      <div class="row mb-4">
+        <div class="col-lg-8 mx-auto">
+          <div class="search-card">
+            <form id="searchForm" class="d-flex gap-2">
+              <input type="text" id="keywordInput" class="form-control search-input" placeholder="Search by Job Title, Company, or Location...">
+              <button type="submit" class="btn btn-primary px-4 fw-bold rounded-pill"><i class="bi bi-search me-1"></i> Search</button>
+              <button type="button" id="clearBtn" class="btn btn-light border px-3 rounded-pill" title="Clear Search"><i class="bi bi-x-lg"></i></button>
+            </form>
+          </div>
+        </div>
+      </div>
+
+      <!-- Incomplete Profile Warning Alert -->
+      <div id="profileWarning" style="display: none;" class="alert alert-warning rounded-3 mb-4 shadow-sm">
+        <i class="bi bi-exclamation-triangle-fill me-2"></i><b>Note:</b> Your profile or resume is incomplete. <a href="candidate-profile.html" class="alert-link fw-bold">Complete your profile</a> to unlock the Apply button.
+      </div>
+
+      <!-- Jobs Grid -->
+      <div class="row g-4" id="jobsGridContainer">
+        <!-- Dynamically rendered jobs -->
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="js/app-data.js"></script>
+  <script src="js/sidebar.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const user = CareerLinkDB.requireAuth('Candidate');
+      if (!user) return;
+
+      const isComplete = CareerLinkDB.isProfileComplete(user.user_id);
+      if (!isComplete) {
+        document.getElementById('profileWarning').style.display = 'block';
+      }
+
+      // Check URL search parameters
+      const urlParams = new URLSearchParams(window.location.search);
+      const initialKeyword = urlParams.get('keyword') || '';
+      document.getElementById('keywordInput').value = initialKeyword;
+
+      function renderJobs(keyword) {
+        const jobs = CareerLinkDB.getApprovedJobs(keyword);
+        const container = document.getElementById('jobsGridContainer');
+
+        if (jobs.length === 0) {
+          container.innerHTML = `
+            <div class="col-12 text-center text-muted py-5">
+              <i class="bi bi-search fs-1 d-block mb-3 opacity-50"></i>
+              <h5 class="fw-bold text-dark">No matching jobs found!</h5>
+              <p>There are currently no approved jobs matching your criteria.</p>
+              <button class="btn btn-outline-primary rounded-pill px-4" onclick="document.getElementById('keywordInput').value=''; renderJobs('');">View All Jobs</button>
+            </div>
+          `;
+          return;
+        }
+
+        const colorCycles = [
+          { title: 'text-primary', btn: 'btn-primary' },
+          { title: 'text-success', btn: 'btn-success' },
+          { title: 'text-warning', btn: 'btn-warning text-dark' }
+        ];
+
+        container.innerHTML = jobs.map((job, idx) => {
+          const theme = colorCycles[idx % colorCycles.length];
+          const applyBtnHtml = isComplete 
+            ? `<a href="apply-job.html?jobid=${job.job_id}" class="btn ${theme.btn} w-100 rounded-pill fw-bold py-2 mt-auto">Apply Now</a>`
+            : `<a href="candidate-profile.html" class="btn btn-secondary w-100 rounded-pill fw-bold py-2 mt-auto"><i class="bi bi-lock-fill me-1"></i> Complete Profile to Apply</a>`;
+
+          return `
+            <div class="col-md-6 col-lg-4">
+              <div class="job-card">
+                <h4 class="${theme.title} fw-bold mb-1">${job.job_title}</h4>
+                <div class="text-muted small mb-2"><i class="bi bi-clock-history me-1"></i>Posted: ${job.posted_date}</div>
+                <hr class="my-2 opacity-25">
+                <p><b>Company :</b> <span class="fw-semibold text-dark">${job.company_name}</span></p>
+                <p><b>Location :</b> ${job.location}</p>
+                <p><b>Salary :</b> <span class="text-success fw-bold">${job.salary}</span></p>
+                <p><b>Experience :</b> ${job.experience}</p>
+                <p class="text-muted small flex-grow-1 mb-4">${job.description ? job.description.substring(0, 110) + '...' : ''}</p>
+                ${applyBtnHtml}
+              </div>
+            </div>
+          `;
+        }).join('');
+      }
+
+      renderJobs(initialKeyword);
+
+      document.getElementById('searchForm').addEventListener('submit', (e) => {
+        e.preventDefault();
+        const kw = document.getElementById('keywordInput').value;
+        renderJobs(kw);
+      });
+
+      document.getElementById('clearBtn').addEventListener('click', () => {
+        document.getElementById('keywordInput').value = '';
+        renderJobs('');
+      });
+    });
+  </script>
+</body>
+</html>

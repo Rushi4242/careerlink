@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Edit Job | HR Portal</title>
+  <!-- Bootstrap 5 CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Bootstrap Icons -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+  <!-- Custom CSS -->
+  <link href="css/style.css" rel="stylesheet">
+</head>
+<body>
+
+  <div class="wrapper">
+    <!-- Dynamic Sidebar -->
+    <nav class="sidebar" id="sidebarNav"></nav>
+
+    <!-- Main Content Area -->
+    <div class="content">
+      <!-- Top Navbar -->
+      <div class="top-navbar">
+        <div class="d-flex align-items-center gap-3">
+          <button class="mobile-nav-toggle" id="mobileNavToggle"><i class="bi bi-list"></i></button>
+          <h5 class="m-0 fw-bold text-dark"><i class="bi bi-pencil-square text-primary me-2"></i>Edit Job Posting</h5>
+        </div>
+        <div class="fw-semibold text-muted small">
+          <i class="bi bi-person-circle me-1"></i><span class="display-user-name">HR Manager</span>
+        </div>
+      </div>
+
+      <!-- Form Card -->
+      <div class="form-card" style="max-width: 800px;">
+        <div id="alertBox" style="display: none;" class="alert p-3 rounded-3 mb-3"></div>
+
+        <form id="editJobForm">
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label class="form-label fw-bold text-muted small">Job Title</label>
+              <input type="text" id="editJobTitle" class="form-control" required>
+            </div>
+            <div class="col-md-6 mb-3">
+              <label class="form-label fw-bold text-muted small">Company Name</label>
+              <input type="text" id="editJobCompany" class="form-control" required>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label class="form-label fw-bold text-muted small">Job Location</label>
+              <input type="text" id="editJobLocation" class="form-control" required>
+            </div>
+            <div class="col-md-6 mb-3">
+              <label class="form-label fw-bold text-muted small">Salary Package</label>
+              <input type="text" id="editJobSalary" class="form-control" required>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label class="form-label fw-bold text-muted small">Required Experience</label>
+              <input type="text" id="editJobExp" class="form-control" required>
+            </div>
+            <div class="col-md-6 mb-3">
+              <label class="form-label fw-bold text-muted small">Application Deadline</label>
+              <input type="date" id="editJobLastDate" class="form-control" required>
+            </div>
+          </div>
+
+          <div class="mb-4">
+            <label class="form-label fw-bold text-muted small">Comprehensive Job Description</label>
+            <textarea id="editJobDesc" class="form-control" rows="5" required></textarea>
+          </div>
+
+          <div class="d-flex gap-3">
+            <button type="submit" class="btn btn-primary w-50 py-2 fw-bold rounded-pill shadow-sm">Update Listing</button>
+            <a href="hr-manage-jobs.html" class="btn btn-light border w-50 py-2 fw-bold rounded-pill text-dark">Cancel</a>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="js/app-data.js"></script>
+  <script src="js/sidebar.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const user = CareerLinkDB.requireAuth('HR');
+      if (!user) return;
+
+      const urlParams = new URLSearchParams(window.location.search);
+      const jobId = urlParams.get('jobid');
+
+      if (!jobId) {
+        window.location.href = 'hr-manage-jobs.html';
+        return;
+      }
+
+      const job = CareerLinkDB.getJobById(jobId);
+      if (!job || job.posted_by !== user.user_id) {
+        alert("Job not found or permission denied.");
+        window.location.href = 'hr-manage-jobs.html';
+        return;
+      }
+
+      document.getElementById('editJobTitle').value = job.job_title || '';
+      document.getElementById('editJobCompany').value = job.company_name || '';
+      document.getElementById('editJobLocation').value = job.location || '';
+      document.getElementById('editJobSalary').value = job.salary || '';
+      document.getElementById('editJobExp').value = job.experience || '';
+      document.getElementById('editJobLastDate').value = job.last_date || '';
+      document.getElementById('editJobDesc').value = job.description || '';
+
+      document.getElementById('editJobForm').addEventListener('submit', (e) => {
+        e.preventDefault();
+        const alertBox = document.getElementById('alertBox');
+
+        const title = document.getElementById('editJobTitle').value;
+        const company = document.getElementById('editJobCompany').value;
+        const location = document.getElementById('editJobLocation').value;
+        const salary = document.getElementById('editJobSalary').value;
+        const experience = document.getElementById('editJobExp').value;
+        const last_date = document.getElementById('editJobLastDate').value;
+        const description = document.getElementById('editJobDesc').value;
+
+        const res = CareerLinkDB.updateJob(jobId, user.user_id, {
+          title,
+          company,
+          location,
+          salary,
+          experience,
+          description,
+          last_date
+        });
+
+        if (res.success) {
+          alertBox.className = 'alert alert-success p-3 rounded-3 mb-3 fw-bold';
+          alertBox.innerHTML = `<i class="bi bi-check-circle-fill me-2"></i>Job Updated Successfully! <a href="hr-manage-jobs.html" class="alert-link ms-2">Back to Manage Jobs</a>`;
+          alertBox.style.display = 'block';
+        }
+      });
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,21 @@
+{
+  "name": "careerlink",
+  "version": "1.0.0",
+  "description": "Career Link - Assisted Online Job Portal System (Vercel Deployable)",
+  "main": "index.html",
+  "scripts": {
+    "start": "npx serve .",
+    "dev": "npx serve .",
+    "build": "echo 'Build completed for Vercel deployment'"
+  },
+  "keywords": [
+    "job-portal",
+    "recruitment",
+    "careerlink",
+    "jobs",
+    "career",
+    "vercel"
+  ],
+  "author": "Career Link Team",
+  "license": "MIT"
+}
